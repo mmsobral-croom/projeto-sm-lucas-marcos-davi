@@ -2,6 +2,8 @@ import esd.ListaSequencial;
 import sm.Giassi;
 import sm.Produto;
 
+import model.ProductPrice;
+
 public class Main {
     static void main() {
 
@@ -16,6 +18,20 @@ public class Main {
         // Mostra cada um dos produtos encontrados
         for (int pos=0; pos < produtos.comprimento(); pos++) {
             IO.println(produtos.obtem(pos));
+        }
+
+        System.out.println(produtos.comprimento() + " produtos encontrados.");
+        ListaSequencial<ProductPrice> PriceList = new ListaSequencial<>();
+
+        for (int pos=0; pos < produtos.comprimento(); pos++) {
+            ProductPrice priceOfProduct = new ProductPrice(produtos.obtem(pos).getNome(), produtos.obtem(pos).getPreco());
+            PriceList.insere(pos,priceOfProduct);
+        }
+        // System.out.println(produtos.obtem(0).getPreco());
+
+        System.out.println("Lista de preços: ");
+        for (int pos=0; pos < PriceList.comprimento(); pos++) {
+            IO.println(PriceList.obtem(pos).getName() + ": " + PriceList.obtem(pos).getPrice());
         }
 
     }
