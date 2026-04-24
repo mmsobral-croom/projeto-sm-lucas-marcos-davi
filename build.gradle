@@ -25,3 +25,19 @@ dependencies {
 test {
     useJUnitPlatform()
 }
+
+task run {
+    group = 'application'
+    description = 'Runs the project'
+    doLast {
+        println 'Run task executed'
+    }
+}
+
+task runMain(type: JavaExec) {
+    group = 'application'
+    description = 'Runs the main class'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'Main'
+}
+

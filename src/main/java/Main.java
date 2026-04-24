@@ -5,6 +5,8 @@ import sm.Produto;
 public class Main {
     static void main() {
 
+        System.out.println("Buscando produtos...");
+
         // cria um acessador para o Giassi
         Giassi sm = new Giassi();
 
