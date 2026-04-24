@@ -5,6 +5,8 @@ import sm.Produto;
 import model.ProductPrice;
 
 public class Main {
+
+    
     static void main() {
 
         System.out.println("Buscando produtos...");
@@ -29,10 +31,16 @@ public class Main {
         }
         // System.out.println(produtos.obtem(0).getPreco());
 
+
+        float sum = 0;
+
         System.out.println("Lista de preços: ");
         for (int pos=0; pos < PriceList.comprimento(); pos++) {
             IO.println(PriceList.obtem(pos).getName() + ": " + PriceList.obtem(pos).getPrice());
+            sum += PriceList.obtem(pos).getPrice();
         }
+
+        System.out.println("Preço total: " + sum / produtos.comprimento());
 
     }
 }
