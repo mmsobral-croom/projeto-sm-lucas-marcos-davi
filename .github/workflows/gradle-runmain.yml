@@ -2,9 +2,9 @@ name: Gradle Compile and RunMain
 
 on:
   push:
-    branches: [main, master]
+    branches: [main, desenvolvimento]
   pull_request:
-    branches: [main, master]
+    branches: [main, desenvolvimento]
 
 jobs:
   build:
