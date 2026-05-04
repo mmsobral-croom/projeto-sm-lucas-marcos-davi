@@ -4,6 +4,7 @@ import esd.ListaSequencial;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -87,7 +88,7 @@ public class Supermercado {
         class Iterador implements Iterator<Produto> {
             int total;
             int inicio = 0;
-//            int pos = 0;
+            //            int pos = 0;
             ListaSequencial<Produto> produtos;
 
             Iterador(ListaSequencial<Produto> produtos, int total) {
