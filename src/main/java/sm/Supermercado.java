@@ -4,7 +4,6 @@ import esd.ListaSequencial;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;

@@ -1,0 +1,246 @@
+Index: src/main/java/Main.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import esd.ListaSequencial;\r\nimport sm.Giassi;\r\nimport sm.Produto;\r\n\r\npublic class Main {\r\n    static void main() {\r\n\r\n        System.out.println(\"Buscando produtos...\");\r\n\r\n        // cria um acessador para o Giassi\r\n        Giassi sm = new Giassi();\r\n\r\n        // procura todos produtos cujo nome contenha \"tapioca\"\r\n        ListaSequencial<Produto> produtos = sm.busca(\"tapioca\");\r\n\r\n        // Mostra cada um dos produtos encontrados\r\n        for (int pos=0; pos < produtos.comprimento(); pos++) {\r\n            IO.println(produtos.obtem(pos));\r\n        }\r\n\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/Main.java b/src/main/java/Main.java
+--- a/src/main/java/Main.java	(revision 95757b54a1cd51f1630f14b69771b2b9b342650b)
++++ b/src/main/java/Main.java	(date 1778006964334)
+@@ -1,22 +1,122 @@
+ import esd.ListaSequencial;
++import sm.Bistek;
++import sm.Fort;
+ import sm.Giassi;
+ import sm.Produto;
+ 
++import java.util.Scanner;
++
+ public class Main {
+-    static void main() {
++    public static void main(String[] args) {
++
++        Scanner sc = new Scanner(System.in);
++
++        System.out.println("""
++                Sistema de comparação de compras: 
++                Escreva "Entrar" para começar e "Sair" para sair.
++                Digite:
++                """);
++
++        String dadosLista = sc.nextLine();
++
++        // cria acessadores para cada mercado.
++        Giassi dadosGiassi = new Giassi();
++        Fort dadosFort = new Fort();
++        Bistek dadosBistek = new Bistek();
++
++        // Lista com os produtos adicionados.
++        ListaSequencial<String> listaCompras = new ListaSequencial<>();
++
++        // Listas dos preços dos produtos por mercado.
++        ListaSequencial<Float> listaPrecosGiassi = new ListaSequencial<>();
++        ListaSequencial<Float> listaPrecosFort = new ListaSequencial<>();
++        ListaSequencial<Float> listaPrecosBistek = new ListaSequencial<>();
++
++        // While feito para que só entre no menu, quando digitar entrar.
++        while (!dadosLista.equalsIgnoreCase("entrar")) {
++            System.out.println("Digite um dado válido.");
++            dadosLista = sc.nextLine();
++        }
++
++        if (dadosLista.equalsIgnoreCase("entrar")) {
++            // Enquanto não colocar sair, será adicionado produtos para entrar na listaCompras
++            while (!dadosLista.equalsIgnoreCase("sair")) {
++                System.out.println("Digite um produto que você quer consultar o preço: ");
++                dadosLista = sc.nextLine();
++
++                listaCompras.adiciona(dadosLista);
++            }
++
++            // loop que busca e imprime os itens buscados no API.
++            for (int i = 0; i < listaCompras.comprimento() - 1; i++) {
++                String produtoNome = listaCompras.obtem(i);
++
++                // Variáveis busca para buscar os nomes dos produtos digitados.
++                var buscaGiassiNome = dadosGiassi.busca(produtoNome);
++                var buscaFortNome = dadosFort.busca(produtoNome);
++                var buscaBistekNome = dadosBistek.busca(produtoNome);
++
++                // Váriaveis busca para buscar os IDs dos produtos.
++                var buscaGiassiId = dadosGiassi.obtem(produtoNome);
++                var buscaFortId = dadosFort.obtem(produtoNome);
++                var buscaBistekId = dadosBistek.obtem(produtoNome);
++
++                System.out.println("Preço dos produtos do Giassi:");
++                System.out.println();
++
++                buscaGiassiNome.stream()
++                        .forEach(prod ->
++                                System.out.println(prod.getNome() + " - R$: " + prod.getPreco()));
++
++                // Adiciona o preço de cada produto na lista respectiva do mercado.
++                buscaGiassiNome.stream()
++                        .forEach(prod ->
++                                listaPrecosGiassi.adiciona(prod.getPreco()));
++
++                System.out.println();
++                System.out.println("Preço dos produtos do Fort:");
++                System.out.println();
++
++                buscaFortNome.stream()
++                        .forEach(prod ->
++                                System.out.println(prod.getNome() + " - R$: " + prod.getPreco()));
++
++                buscaFortNome.stream()
++                        .forEach(prod ->
++                                listaPrecosFort.adiciona(prod.getPreco()));
++
++                System.out.println();
++                System.out.println("Preço dos produtos do Bistek:");
++                System.out.println();
++
++                buscaBistekNome.stream()
++                        .forEach(prod ->
++                                System.out.println(prod.getNome() + " - R$: " + prod.getPreco()));
++
++                buscaBistekNome.stream()
++                        .forEach(prod ->
++                                listaPrecosBistek.adiciona(prod.getPreco()));
++
++            }
+ 
+-        System.out.println("Buscando produtos...");
++            System.out.println();
+ 
+-        // cria um acessador para o Giassi
+-        Giassi sm = new Giassi();
++            for (int i = 0; i < listaPrecosGiassi.comprimento(); i++) {
++                System.out.println("Preço: R$ " + listaPrecosGiassi.obtem(i));
++            }
+ 
+-        // procura todos produtos cujo nome contenha "tapioca"
+-        ListaSequencial<Produto> produtos = sm.busca("tapioca");
++            System.out.println();
+ 
+-        // Mostra cada um dos produtos encontrados
+-        for (int pos=0; pos < produtos.comprimento(); pos++) {
+-            IO.println(produtos.obtem(pos));
+-        }
++            for (int i = 0; i < listaPrecosFort.comprimento(); i++) {
++                System.out.println("Preço: R$ " + listaPrecosFort.obtem(i));
++            }
++
++            System.out.println();
++
++            for (int i = 0; i < listaPrecosBistek.comprimento(); i++) {
++                System.out.println("Preço: R$ " + listaPrecosBistek.obtem(i));
++            }
+ 
+-    }
+-}
++        }
++    }
++}
+\ No newline at end of file
+Index: src/main/java/sm/Supermercado.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package sm;\r\n\r\nimport esd.ListaSequencial;\r\nimport org.json.JSONArray;\r\nimport org.json.JSONException;\r\nimport org.json.JSONObject;\r\n\r\nimport java.io.IOException;\r\nimport java.net.URI;\r\nimport java.net.URISyntaxException;\r\nimport java.net.URLEncoder;\r\nimport java.net.http.HttpClient;\r\nimport java.net.http.HttpRequest;\r\nimport java.net.http.HttpResponse;\r\nimport java.nio.charset.StandardCharsets;\r\nimport java.util.Iterator;\r\nimport java.util.NoSuchElementException;\r\nimport java.util.Spliterator;\r\nimport java.util.function.Consumer;\r\nimport java.util.regex.Pattern;\r\nimport java.util.stream.Stream;\r\nimport java.util.stream.StreamSupport;\r\n\r\npublic class Supermercado {\r\n\r\n    HttpClient cliente;\r\n    String url;\r\n    final Pattern re_resources = Pattern.compile(\"(\\\\d+)-(\\\\d+)/(\\\\d+)\", Pattern.CASE_INSENSITIVE);\r\n    final int query_len = 40;\r\n\r\n    public class Resultado implements Iterable<Produto> {\r\n        String produto;\r\n        int total;\r\n        ListaSequencial<Produto> produtos;\r\n        Supermercado sm;\r\n\r\n        Resultado(Supermercado sm, String produto, ListaSequencial<Produto> produtos, int total) {\r\n            this.produto = produto;\r\n            this.produtos = produtos;\r\n            this.total = total;\r\n            this.sm = sm;\r\n        }\r\n\r\n        @Override\r\n        public Iterador iterator() {\r\n            return new Iterador(produtos, total);\r\n        }\r\n\r\n        public Stream<Produto> stream() {\r\n            return StreamSupport.stream(new ResultIterator(this), false);\r\n        }\r\n\r\n        class ResultIterator implements Spliterator<Produto> {\r\n            Iterador it;\r\n\r\n            ResultIterator(Resultado res) {\r\n                this.it = res.iterator();\r\n            }\r\n\r\n            public void forEachRemaining(Consumer<? super Produto> action) {\r\n                while (it.hasNext()) {\r\n                    action.accept(it.next());\r\n                }\r\n            }\r\n\r\n            public boolean tryAdvance(Consumer<? super Produto> action) {\r\n                if (it.hasNext()) {\r\n                    action.accept(it.next());\r\n                    return true;\r\n                }\r\n                else // cannot advance\r\n                    return false;\r\n            }\r\n\r\n            public Spliterator<Produto> trySplit() {\r\n                return null;\r\n            }\r\n\r\n            public long estimateSize() {\r\n                return (long)(it.total - it.inicio);\r\n            }\r\n\r\n            public int characteristics() {\r\n                return ORDERED | SIZED | IMMUTABLE | SUBSIZED;\r\n            }\r\n        }\r\n\r\n        class Iterador implements Iterator<Produto> {\r\n            int total;\r\n            int inicio = 0;\r\n            //            int pos = 0;\r\n            ListaSequencial<Produto> produtos;\r\n\r\n            Iterador(ListaSequencial<Produto> produtos, int total) {\r\n                this.produtos = produtos;\r\n                this.total = total;\r\n            }\r\n\r\n            @Override\r\n            public boolean hasNext() {\r\n                return total > inicio;\r\n            }\r\n\r\n            @Override\r\n            public Produto next() {\r\n                if (! hasNext()) {\r\n                    throw new NoSuchElementException(\"fim da iteração\");\r\n                }\r\n                Produto prod = produtos.obtem(inicio++);\r\n                if (inicio >= produtos.comprimento()) {\r\n//                    inicio = produtos.comprimento() + inicio;\r\n                    if (inicio < total) {\r\n                        var mais_produtos = sm.busca_proximo(produto, inicio);\r\n                        if (produtos != null) {\r\n                            for (int j=0; j < mais_produtos.comprimento(); j++) {\r\n                                produtos.adiciona(mais_produtos.obtem(j));\r\n                            }\r\n//                            pos = 0;\r\n                        }\r\n                    }\r\n                }\r\n                return prod;\r\n\r\n            }\r\n        }\r\n    }\r\n\r\n    public Supermercado(String url)  {\r\n        cliente = HttpClient.newHttpClient();\r\n        this.url = url+ \"/api/catalog_system/pub/products/search/\";\r\n    }\r\n\r\n    String make_url(String produto, int inicio) {\r\n        StringBuilder sb = new StringBuilder();\r\n        sb.append(this.url);\r\n        sb.append(\"?ft=\");\r\n        sb.append(URLEncoder.encode(produto, StandardCharsets.UTF_8));\r\n        sb.append(\"&_from=\");\r\n        sb.append(Integer.toString(inicio));\r\n        sb.append(\"&_to=\");\r\n        sb.append(Integer.toString(inicio+query_len-1));\r\n\r\n        return sb.toString();\r\n    }\r\n\r\n    String make_get_url(String produtoId) {\r\n        StringBuilder sb = new StringBuilder();\r\n        sb.append(this.url);\r\n        sb.append(\"?fq=productId:\");\r\n        sb.append(produtoId);\r\n\r\n        return sb.toString();\r\n    }\r\n\r\n\r\n    HttpResponse<String> envia(String url) {\r\n        HttpResponse<String> response = null;\r\n\r\n        try {\r\n            HttpRequest req = HttpRequest.newBuilder()\r\n                    .uri(new URI(url))\r\n                    .GET()\r\n                    .setHeader(\"user-agent\", \"Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0\")\r\n                    .build();\r\n\r\n\r\n            try {\r\n                response = cliente.send(req, HttpResponse.BodyHandlers.ofString());\r\n            } catch (IOException | InterruptedException e) {\r\n\r\n            }\r\n        } catch (URISyntaxException e) {\r\n\r\n        }\r\n\r\n        return response;\r\n    }\r\n\r\n    ListaSequencial<Produto> extrai_produtos(HttpResponse<String> response) {\r\n        ListaSequencial<Produto> r = new ListaSequencial<>();\r\n        var headers = response.headers().map();\r\n        boolean isJson = headers.get(\"content-type\").stream().anyMatch(x -> x.startsWith(\"application/json\"));\r\n        if (isJson) {\r\n            JSONArray jo = new JSONArray(response.body());\r\n            for (var o : jo) {\r\n                JSONObject obj = (JSONObject) o;\r\n                r.adiciona(Produto.fromJson(obj));\r\n            }\r\n        }\r\n        return r;\r\n    }\r\n\r\n    ListaSequencial<Produto> busca_proximo(String produto, int inicio) {\r\n        HttpResponse<String> response = envia(make_url(produto, inicio));\r\n        if (response != null) {\r\n            int status = response.statusCode();\r\n            if (status == 200 || status == 206) {\r\n                return extrai_produtos(response);\r\n            }\r\n        }\r\n\r\n        return null;\r\n    }\r\n\r\n    int[] obtem_info_paginas(HttpResponse<String> response) {\r\n        var headers = response.headers().map();\r\n\r\n        String faixa = headers.get(\"resources\").getFirst();\r\n        var m = re_resources.matcher(faixa);\r\n        int paginas[] = {0, 9, 10};\r\n        if (m.find()) {\r\n            paginas[0] = Integer.parseInt(m.group(1));\r\n            paginas[1] = Integer.parseInt(m.group(2));\r\n            paginas[2] = Integer.parseInt(m.group(3));\r\n            paginas[1] = Math.min(paginas[1], paginas[2]);\r\n        }\r\n        return paginas;\r\n    }\r\n\r\n    public Resultado busca(String produto) {\r\n        Resultado res = null;\r\n\r\n        HttpResponse<String> response = envia(make_url(produto, 0));\r\n        if (response != null) {\r\n            int status = response.statusCode();\r\n            if (status == 200 || status == 206) {\r\n                ListaSequencial<Produto> r = extrai_produtos(response);\r\n\r\n                int[] faixa = obtem_info_paginas(response);\r\n\r\n                res = new Resultado(this, produto, r, faixa[2]);\r\n            }\r\n        }\r\n        return res;\r\n    }\r\n\r\n\r\n    public Produto obtem(String produto_id) {\r\n        Produto prod = null;\r\n\r\n        HttpResponse<String> response = envia(make_get_url(produto_id));\r\n        if (response != null) {\r\n            int status = response.statusCode();\r\n            if (status == 200) {\r\n                var headers = response.headers().map();\r\n                boolean isJson = headers.get(\"content-type\").stream().anyMatch(x -> x.startsWith(\"application/json\"));\r\n                if (isJson) {\r\n                    JSONArray jo = new JSONArray(response.body());\r\n                    prod = Produto.fromJson(jo.getJSONObject(0));\r\n                }\r\n            }\r\n        }\r\n\r\n        return prod;\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/sm/Supermercado.java b/src/main/java/sm/Supermercado.java
+--- a/src/main/java/sm/Supermercado.java	(revision 95757b54a1cd51f1630f14b69771b2b9b342650b)
++++ b/src/main/java/sm/Supermercado.java	(date 1778006996185)
+@@ -4,7 +4,6 @@
+ import org.json.JSONArray;
+ import org.json.JSONException;
+ import org.json.JSONObject;
+-
+ import java.io.IOException;
+ import java.net.URI;
+ import java.net.URISyntaxException;
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"AutoImportSettings\">\r\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\r\n  </component>\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"efb25028-95c5-418a-98a2-4888017002f4\" name=\"Changes\" comment=\"\" />\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"ExternalProjectsData\">\r\n    <projectState path=\"$PROJECT_DIR$\">\r\n      <ProjectState />\r\n    </projectState>\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\r\n  </component>\r\n  <component name=\"ProjectColorInfo\">{\r\n  &quot;associatedIndex&quot;: 3\r\n}</component>\r\n  <component name=\"ProjectId\" id=\"3DBjc3SQXCgtYQTpYeEgI50Hhr1\" />\r\n  <component name=\"ProjectViewState\">\r\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\r\n    <option name=\"showLibraryContents\" value=\"true\" />\r\n  </component>\r\n  <component name=\"PropertiesComponent\"><![CDATA[{\r\n  \"keyToString\": {\r\n    \"Gradle.projeto-sm-lucas-marcos-davi [:Main.main()].executor\": \"Run\",\r\n    \"RunOnceActivity.ShowReadmeOnStart\": \"true\",\r\n    \"RunOnceActivity.git.unshallow\": \"true\",\r\n    \"git-widget-placeholder\": \"Lucas\",\r\n    \"last_opened_file_path\": \"/home/lucasluizguesser/Documentos/Matérias IFSC/3 semestre/Estrutura de Dados/estruturas-de-dados-lucasluizg\",\r\n    \"node.js.detected.package.eslint\": \"true\",\r\n    \"node.js.detected.package.tslint\": \"true\",\r\n    \"node.js.selected.package.eslint\": \"(autodetect)\",\r\n    \"node.js.selected.package.tslint\": \"(autodetect)\",\r\n    \"nodejs_package_manager_path\": \"npm\",\r\n    \"vue.rearranger.settings.migration\": \"true\"\r\n  }\r\n}]]></component>\r\n  <component name=\"RunManager\">\r\n    <configuration default=\"true\" type=\"JetRunConfigurationType\">\r\n      <method v=\"2\">\r\n        <option name=\"Make\" enabled=\"true\" />\r\n      </method>\r\n    </configuration>\r\n    <configuration default=\"true\" type=\"KotlinStandaloneScriptRunConfigurationType\">\r\n      <option name=\"filePath\" />\r\n      <method v=\"2\" />\r\n    </configuration>\r\n  </component>\r\n  <component name=\"SharedIndexes\">\r\n    <attachedChunks>\r\n      <set>\r\n        <option value=\"bundled-jdk-9823dce3aa75-fbdcb00ec9e3-intellij.indexing.shared.core-IU-251.26927.53\" />\r\n        <option value=\"bundled-js-predefined-d6986cc7102b-09060db00ec0-JavaScript-IU-251.26927.53\" />\r\n      </set>\r\n    </attachedChunks>\r\n  </component>\r\n  <component name=\"TaskManager\">\r\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\r\n      <changelist id=\"efb25028-95c5-418a-98a2-4888017002f4\" name=\"Changes\" comment=\"\" />\r\n      <created>1777762433577</created>\r\n      <option name=\"number\" value=\"Default\" />\r\n      <option name=\"presentableId\" value=\"Default\" />\r\n      <updated>1777762433577</updated>\r\n      <workItem from=\"1777762435795\" duration=\"3937000\" />\r\n      <workItem from=\"1777815431056\" duration=\"13576000\" />\r\n    </task>\r\n    <servers />\r\n  </component>\r\n  <component name=\"TypeScriptGeneratedFilesManager\">\r\n    <option name=\"version\" value=\"3\" />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision 95757b54a1cd51f1630f14b69771b2b9b342650b)
++++ b/.idea/workspace.xml	(date 1778007275567)
+@@ -4,7 +4,11 @@
+     <option name="autoReloadType" value="SELECTIVE" />
+   </component>
+   <component name="ChangeListManager">
+-    <list default="true" id="efb25028-95c5-418a-98a2-4888017002f4" name="Changes" comment="" />
++    <list default="true" id="efb25028-95c5-418a-98a2-4888017002f4" name="Changes" comment="">
++      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/main/java/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/main/java/sm/Supermercado.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/sm/Supermercado.java" afterDir="false" />
++    </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+@@ -14,6 +18,18 @@
+     <projectState path="$PROJECT_DIR$">
+       <ProjectState />
+     </projectState>
++  </component>
++  <component name="ExternalProjectsManager">
++    <system id="GRADLE">
++      <state>
++        <projects_view>
++          <tree_state>
++            <expand />
++            <select />
++          </tree_state>
++        </projects_view>
++      </state>
++    </system>
+   </component>
+   <component name="Git.Settings">
+     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+@@ -29,10 +45,13 @@
+   <component name="PropertiesComponent"><![CDATA[{
+   "keyToString": {
+     "Gradle.projeto-sm-lucas-marcos-davi [:Main.main()].executor": "Run",
++    "ModuleVcsDetector.initialDetectionPerformed": "true",
+     "RunOnceActivity.ShowReadmeOnStart": "true",
++    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+     "RunOnceActivity.git.unshallow": "true",
+-    "git-widget-placeholder": "Lucas",
+-    "last_opened_file_path": "/home/lucasluizguesser/Documentos/Matérias IFSC/3 semestre/Estrutura de Dados/estruturas-de-dados-lucasluizg",
++    "git-widget-placeholder": "melhoria-na-interação-do-usuario",
++    "kotlin-language-version-configured": "true",
++    "last_opened_file_path": "C:/Users/Davi Quirino/Documents/Programação/Java/projeto-sm-lucas-marcos-davi",
+     "node.js.detected.package.eslint": "true",
+     "node.js.detected.package.tslint": "true",
+     "node.js.selected.package.eslint": "(autodetect)",
+@@ -41,22 +60,10 @@
+     "vue.rearranger.settings.migration": "true"
+   }
+ }]]></component>
+-  <component name="RunManager">
+-    <configuration default="true" type="JetRunConfigurationType">
+-      <method v="2">
+-        <option name="Make" enabled="true" />
+-      </method>
+-    </configuration>
+-    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+-      <option name="filePath" />
+-      <method v="2" />
+-    </configuration>
+-  </component>
+   <component name="SharedIndexes">
+     <attachedChunks>
+       <set>
+-        <option value="bundled-jdk-9823dce3aa75-fbdcb00ec9e3-intellij.indexing.shared.core-IU-251.26927.53" />
+-        <option value="bundled-js-predefined-d6986cc7102b-09060db00ec0-JavaScript-IU-251.26927.53" />
++        <option value="bundled-jdk-30f59d01ecdd-2fc7cc6b9a17-intellij.indexing.shared.core-IU-253.31033.145" />
+       </set>
+     </attachedChunks>
+   </component>
