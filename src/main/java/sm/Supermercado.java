@@ -13,6 +13,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 public class Supermercado {
 
@@ -35,9 +36,9 @@ public class Supermercado {
         ListaSequencial<Produto> r = new ListaSequencial<>();
         try {
             HttpResponse<String> response = cliente.send(req, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() == 200) {
+            if (response.statusCode() >= 200 && response.statusCode() < 300) {
                 var headers = response.headers().map();
-                boolean isJson = headers.get("content-type").stream().anyMatch(x -> x.startsWith("application/json"));
+                boolean isJson = headers.getOrDefault("content-type", List.of()).stream().anyMatch(x -> x.startsWith("application/json"));
                 if (isJson) {
                     JSONArray jo = new JSONArray(response.body());
                     for (var o: jo) {
@@ -66,9 +67,9 @@ public class Supermercado {
         Produto prod = null;
         try {
             HttpResponse<String> response = cliente.send(req, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() == 200) {
+            if (response.statusCode() >= 200 && response.statusCode() < 300) {
                 var headers = response.headers().map();
-                boolean isJson = headers.get("content-type").stream().anyMatch(x -> x.startsWith("application/json"));
+                boolean isJson = headers.getOrDefault("content-type", List.of()).stream().anyMatch(x -> x.startsWith("application/json"));
                 if (isJson) {
                     JSONArray jo = new JSONArray(response.body());
                     prod = Produto.fromJson(jo.getJSONObject(0));
