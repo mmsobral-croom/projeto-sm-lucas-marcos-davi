@@ -26,18 +26,10 @@ test {
     useJUnitPlatform()
 }
 
-task run {
+tasks.register('run', JavaExec) {
     group = 'application'
     description = 'Runs the project'
-    doLast {
-        println 'Run task executed'
-    }
-}
-
-task runMain(type: JavaExec) {
-    group = 'application'
-    description = 'Runs the main class'
     classpath = sourceSets.main.runtimeClasspath
     mainClass = 'Main'
+    standardInput = System.in
 }
-

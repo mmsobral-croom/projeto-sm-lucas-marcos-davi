@@ -7,16 +7,15 @@ import sm.Produto;
 import java.util.Scanner;
 
 public class Main {
-    public static void main() {
+    public static void main(String[] args) {
 
         Scanner sc = new Scanner(System.in);
 
         System.out.println("""
                 Sistema de comparação de compras: 
-                Pressione Entrar para começar e 0 para sair.
+                Escreva "Entrar" para começar e "Sair" para sair.
                 Digite:
                 """);
-
 
         String dadosLista = sc.nextLine();
 
@@ -27,6 +26,11 @@ public class Main {
 
         // Lista com os produtos adicionados.
         ListaSequencial<String> listaCompras = new ListaSequencial<>();
+
+        // Listas dos preços dos produtos por mercado.
+        ListaSequencial<Float> listaPrecosGiassi = new ListaSequencial<>();
+        ListaSequencial<Float> listaPrecosFort = new ListaSequencial<>();
+        ListaSequencial<Float> listaPrecosBistek = new ListaSequencial<>();
 
         // While feito para que só entre no menu, quando digitar entrar.
         while (!dadosLista.equalsIgnoreCase("entrar")) {
@@ -44,48 +48,75 @@ public class Main {
             }
 
             // loop que busca e imprime os itens buscados no API.
-            for (int i = 0; i < listaCompras.comprimento(); i++) {
-                String produto = listaCompras.obtem(i);
+            for (int i = 0; i < listaCompras.comprimento() - 1; i++) {
+                String produtoNome = listaCompras.obtem(i);
 
-                // Variáveis busca para buscar dados dos produtos digitados.
-                var buscaGiassi = dadosGiassi.busca(produto);
-                var buscaFort = dadosFort.busca(produto);
-                var buscaBistek = dadosBistek.busca(produto);
+                // Variáveis busca para buscar os nomes dos produtos digitados.
+                var buscaGiassiNome = dadosGiassi.busca(produtoNome);
+                var buscaFortNome = dadosFort.busca(produtoNome);
+                var buscaBistekNome = dadosBistek.busca(produtoNome);
 
-                buscaGiassi.stream()
-                        .map(prod -> prod.getNome())
-                        .filter(nome -> nome.startsWith(produto))
-                        .forEach(nome -> IO.println(nome));
+                // Váriaveis busca para buscar os IDs dos produtos.
+                var buscaGiassiId = dadosGiassi.obtem(produtoNome);
+                var buscaFortId = dadosFort.obtem(produtoNome);
+                var buscaBistekId = dadosBistek.obtem(produtoNome);
 
-                buscaFort.stream()
-                        .map(prod -> prod.getNome())
-                        .filter(nome -> nome.startsWith(produto))
-                        .forEach(nome -> IO.println(nome));
+                System.out.println("Preço dos produtos do Giassi:");
+                System.out.println();
 
-                buscaBistek.stream()
-                        .map(prod -> prod.getNome())
-                        .filter(nome -> nome.startsWith(produto))
-                        .forEach(nome -> IO.println(nome));
+                buscaGiassiNome.stream()
+                        .forEach(prod ->
+                                System.out.println(prod.getNome() + " - R$: " + prod.getPreco()));
+
+                // Adiciona o preço de cada produto na lista respectiva do mercado.
+                buscaGiassiNome.stream()
+                                .forEach(prod ->
+                                        listaPrecosGiassi.adiciona(prod.getPreco()));
+
+                System.out.println();
+                System.out.println("Preço dos produtos do Fort:");
+                System.out.println();
+
+                buscaFortNome.stream()
+                        .forEach(prod ->
+                                System.out.println(prod.getNome() + " - R$: " + prod.getPreco()));
+
+                buscaFortNome.stream()
+                        .forEach(prod ->
+                                listaPrecosFort.adiciona(prod.getPreco()));
+
+                System.out.println();
+                System.out.println("Preço dos produtos do Bistek:");
+                System.out.println();
+
+                buscaBistekNome.stream()
+                        .forEach(prod ->
+                                System.out.println(prod.getNome() + " - R$: " + prod.getPreco()));
+
+                buscaBistekNome.stream()
+                        .forEach(prod ->
+                                listaPrecosBistek.adiciona(prod.getPreco()));
 
             }
 
+            System.out.println();
+
+            for (int i = 0; i < listaPrecosGiassi.comprimento(); i++) {
+                System.out.println("Preço: R$ " + listaPrecosGiassi.obtem(i));
+            }
+
+            System.out.println();
+
+            for (int i = 0; i < listaPrecosFort.comprimento(); i++) {
+                System.out.println("Preço: R$ " + listaPrecosFort.obtem(i));
+            }
+
+            System.out.println();
+
+            for (int i = 0; i < listaPrecosBistek.comprimento(); i++) {
+                System.out.println("Preço: R$ " + listaPrecosBistek.obtem(i));
+            }
+            
         }
-
-        /*
-        // procura todos produtos cujo nome contenha "tapioca"
-        var buscaGiassi = dadosGiassi.busca("carne");
-
-        // Mostra cada um dos produtos encontrados
-        for (Produto prod: buscaGiassi) {
-            IO.println(prod);
-        }
-
-        // Mostra os nomes dos produtos que iniciam exatamente com "Tapioca", mas usando a API stream:
-        buscaGiassi.stream()
-                .map(produto -> produto.getNome())
-                .filter(nome -> nome.startsWith("Carne"))
-                .forEach(nome -> IO.println(nome));
-
-        */
     }
 }
