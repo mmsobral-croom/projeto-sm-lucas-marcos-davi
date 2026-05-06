@@ -1,0 +1,30 @@
+name: Gradle Compile and RunMain
+
+on:
+  push:
+    branches: [main, desenvolvimento, marcos-dev]
+  pull_request:
+    branches: [main, desenvolvimento]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+
+      - name: Ensure Gradle wrapper is executable
+        run: chmod +x ./gradlew
+
+      - name: Compile Java sources
+        run: ./gradlew --no-daemon clean compileJava
+
+      - name: Run Gradle runMain task
+        run: ./gradlew --no-daemon runMain
