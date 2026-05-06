@@ -1,1 +1,4 @@
 arroz
+banana
+feijão
+
