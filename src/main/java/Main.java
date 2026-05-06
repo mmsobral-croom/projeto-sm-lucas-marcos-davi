@@ -2,9 +2,7 @@ import esd.ListaSequencial;
 import sm.Giassi;
 import sm.Bistek;
 import sm.Fort;
-
 import sm.Produto;
-
 import model.ProductPrice;
 import model.Offer;
 
@@ -32,91 +30,133 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        ListaSequencial lista_produtos = new ListaSequencial<>();
-
-        // implementar a busca de multiplos produtos e organização do mesmo
-
-
+        // Descomente abaixo para usar os novos métodos
+        
+        System.out.println(args[0]);
+        buscarEFiltrarProduto(args[0]);
+        //String[] produtos = {"arroz", "feijão", "açúcar"};
+        //buscarEFiltrarMultiplosProdutos(produtos);
     }
+
     
-    public static void buscaFiltro(String[] args) {
-
-        String searchTerm = args.length > 0 ? String.join(" ", args).trim() : "arroz";
-        System.out.println("Buscando produtos: " + searchTerm);
-
-        // cria um acessador para o Giassi
-        Giassi sm = new Giassi();
-        Bistek sm2 = new Bistek();
-        Fort sm3 = new Fort();
-
-        // procura todos produtos cujo nome contenha o termo informado
-        ListaSequencial<Produto> produtos_g = sm.busca(searchTerm);
-        ListaSequencial<Produto> produtos_b = sm2.busca(searchTerm);
-        ListaSequencial<Produto> produtos_f = sm3.busca(searchTerm);
-
-        ListaSequencial<ProductPrice> PriceList_g = new ListaSequencial<>();
-        for (int pos=0; pos < produtos_g.comprimento(); pos++) {
-            ProductPrice priceOfProduct = new ProductPrice(produtos_g.obtem(pos).getNome(), produtos_g.obtem(pos).getPreco());
-            PriceList_g.insere(pos,priceOfProduct);
+    //Busca e filtra um único produto em todos os mercados
+    public static void buscarEFiltrarProduto(String nomeProduto) {
+        System.out.println("Buscando: " + nomeProduto);
+        
+        ListaSequencial<Offer> todasOfertas = buscarEmTodosMercados(nomeProduto);
+        
+        if (todasOfertas.esta_vazia()) {
+            System.out.println("Nenhum produto encontrado para: " + nomeProduto);
+            return;
         }
-
-        ListaSequencial<ProductPrice> PriceList_b = new ListaSequencial<>();
-        for (int pos=0; pos < produtos_b.comprimento(); pos++) {
-            ProductPrice priceOfProduct = new ProductPrice(produtos_b.obtem(pos).getNome(), produtos_b.obtem(pos).getPreco());
-            PriceList_b.insere(pos,priceOfProduct);
-        }
-
-        ListaSequencial<ProductPrice> PriceList_f = new ListaSequencial<>();
-        for (int pos=0; pos < produtos_f.comprimento(); pos++) {
-            ProductPrice priceOfProduct = new ProductPrice(produtos_f.obtem(pos).getNome(), produtos_f.obtem(pos).getPreco());
-            PriceList_f.insere(pos,priceOfProduct);
-        }
-
-        ListaSequencial<Offer> allOffers = new ListaSequencial<>();
-        addOffers(allOffers, PriceList_g, "Giassi");
-        addOffers(allOffers, PriceList_b, "Bistek");
-        addOffers(allOffers, PriceList_f, "Fort");
-
-        // Agora, ordenar todas as ofertas por preço/kg e mostrar as 2 melhores
-        sortOffers(allOffers);
-        if (allOffers.esta_vazia()) {
-            System.out.println("Nenhuma oferta com preço e tamanho foi encontrada para: " + searchTerm);
-            System.out.println("Resultados recebidos das APIs: Giassi=" + produtos_g.comprimento()
-                    + ", Bistek=" + produtos_b.comprimento()
-                    + ", Fort=" + produtos_f.comprimento());
-        } else {
-            System.out.println("Melhores opções considerando preço por kg:");
-        }
-        for (int k = 0; k < Math.min(5, allOffers.comprimento()); k++) {
-            Offer o = allOffers.obtem(k);
-            System.out.println("Nome: " + o.getName()
-                    + ", Tamanho: " + o.getSize()
-                    + ", Valor: R$ " + String.format("%.2f", o.getPrice())
-                    + ", Mercado: " + o.getMarket()
-                    + ", Preço/kg: R$ " + String.format("%.2f", o.getPricePerKg()));
-        }
-
-        System.out.println("Fim da busca.");
-
+        
+        sortOffers(todasOfertas);
+        exibirMelhoresOfertas(todasOfertas, 3);
     }
 
-    private static void addOffers(ListaSequencial<Offer> offers, ListaSequencial<ProductPrice> prices, String market) {
-        for (int pos = 0; pos < prices.comprimento(); pos++) {
-            ProductPrice p = prices.obtem(pos);
-            float size = parseSize(p.getName());
-            if (size > 0 && p.getPrice() > 0) {
-                float pricePerKg = p.getPrice() / (size / 1000);
-                offers.adiciona(new Offer(p.getName(), String.format("%.0fg", size), p.getPrice(), market, pricePerKg));
+    // Busca e filtra múltiplos produtos em todos os mercados
+    public static void buscarEFiltrarMultiplosProdutos(String[] produtos) {
+        ListaSequencial<Offer> todasOfertas = new ListaSequencial<>();
+        
+        for (String produto : produtos) {
+            System.out.println("Buscando: " + produto);
+            ListaSequencial<Offer> ofertas = buscarEmTodosMercados(produto);
+            
+            // Adicionar todas as ofertas encontradas
+            for (int i = 0; i < ofertas.comprimento(); i++) {
+                todasOfertas.adiciona(ofertas.obtem(i));
+            }
+        }
+        
+        if (todasOfertas.esta_vazia()) {
+            System.out.println("Nenhum produto encontrado.");
+            return;
+        }
+        
+        System.out.println("\nOrdenando todas as ofertas por preço/kg...\n");
+        sortOffers(todasOfertas);
+        exibirMelhoresOfertas(todasOfertas, 5);
+    }
+
+    ///Busca um produto em todos os mercados disponíveis
+
+    private static ListaSequencial<Offer> buscarEmTodosMercados(String termoBusca) {
+        ListaSequencial<Offer> todasOfertas = new ListaSequencial<>();
+        
+        // Busca em Giassi
+        Giassi sm1 = new Giassi();
+        ListaSequencial<Produto> produtos1 = sm1.busca(termoBusca);
+        addOffers(todasOfertas, produtos1, "Giassi");
+        
+        // Busca em Bistek
+        Bistek sm2 = new Bistek();
+        ListaSequencial<Produto> produtos2 = sm2.busca(termoBusca);
+        addOffers(todasOfertas, produtos2, "Bistek");
+        
+        // Busca em Fort
+        Fort sm3 = new Fort();
+        ListaSequencial<Produto> produtos3 = sm3.busca(termoBusca);
+        addOffers(todasOfertas, produtos3, "Fort");
+        
+        return todasOfertas;
+    }
+
+
+    //Retorna o melhor preço (menor preço/kg) e o mercado correspondente
+ 
+    public static Offer obterMelhorPreco(String nomeProduto) {
+        ListaSequencial<Offer> ofertas = buscarEmTodosMercados(nomeProduto);
+        
+        if (ofertas.esta_vazia()) {
+            return null;
+        }
+        
+        sortOffers(ofertas);
+        return ofertas.obtem(0); // Retorna a primeira (melhor preço)
+    }
+
+    //Retorna a melhor oferta para cada produto da lista
+    public static ListaSequencial<Offer> obterMelhoresPrecos(String[] produtos) {
+        ListaSequencial<Offer> melhoresOfertas = new ListaSequencial<>();
+        
+        for (String produto : produtos) {
+            Offer melhorOferta = obterMelhorPreco(produto);
+            if (melhorOferta != null) {
+                melhoresOfertas.adiciona(melhorOferta);
+            }
+        }
+        
+        return melhoresOfertas;
+    }
+
+    
+    //Adiciona ofertas de um produto a partir de uma lista de produtos
+     
+    private static void addOffers(ListaSequencial<Offer> offers, ListaSequencial<Produto> produtos, String market) {
+        for (int pos = 0; pos < produtos.comprimento(); pos++) {
+            Produto p = produtos.obtem(pos);
+            float size = parseSize(p.getNome());
+            if (size > 0 && p.getPreco() > 0) {
+                float pricePerKg = p.getPreco() / (size / 1000);
+                offers.adiciona(new Offer(
+                    p.getNome(),
+                    String.format("%.0fg", size),
+                    p.getPreco(),
+                    market,
+                    pricePerKg
+                ));
             }
         }
     }
 
+    
+    // Ordena as ofertas por preço/kg (menor para maior)
     private static void sortOffers(ListaSequencial<Offer> offers) {
         int n = offers.comprimento();
         for (int i = 0; i < n - 1; i++) {
             for (int j = 0; j < n - i - 1; j++) {
                 if (offers.obtem(j).getPricePerKg() > offers.obtem(j + 1).getPricePerKg()) {
-                    // swap
+                    // Swap
                     Offer temp = offers.obtem(j);
                     Offer next = offers.obtem(j + 1);
                     offers.remove(j + 1);
@@ -127,5 +167,23 @@ public class Main {
             }
         }
     }
-}
 
+    
+    // Exibe as melhores ofertas formatadas
+    private static void exibirMelhoresOfertas(ListaSequencial<Offer> offers, int quantidade) {
+        int limite = Math.min(quantidade, offers.comprimento());
+        
+        System.out.println("┌─ TOP " + limite + " MELHORES PREÇOS ─────────────────────────┐");
+        for (int i = 0; i < limite; i++) {
+            Offer o = offers.obtem(i);
+            System.out.println("│ #" + (i + 1));
+            System.out.println("│   Produto: " + o.getName());
+            System.out.println("│   Tamanho: " + o.getSize());
+            System.out.println("│   Valor: R$ " + String.format("%.2f", o.getPrice()));
+            System.out.println("│   Mercado: " + o.getMarket());
+            System.out.println("│   Preço/kg: R$ " + String.format("%.2f", o.getPricePerKg()));
+            System.out.println("│");
+        }
+        System.out.println("└──────────────────────────────────────────────┘");
+    }
+}
