@@ -1,8 +1,5 @@
 import esd.ListaSequencial;
-import sm.Bistek;
-import sm.Fort;
-import sm.Giassi;
-import sm.Produto;
+import sm.*;
 
 import java.util.Scanner;
 
@@ -13,8 +10,7 @@ public class Main {
 
         System.out.println("""
                 Sistema de comparação de compras: 
-                Escreva "Entrar" para começar e "Sair" para sair.
-                Digite:
+                Escreva "Entrar" para começar: 
                 """);
 
         String dadosLista = sc.nextLine();
@@ -27,96 +23,123 @@ public class Main {
         // Lista com os produtos adicionados.
         ListaSequencial<String> listaCompras = new ListaSequencial<>();
 
-        // Listas dos preços dos produtos por mercado.
-        ListaSequencial<Float> listaPrecosGiassi = new ListaSequencial<>();
-        ListaSequencial<Float> listaPrecosFort = new ListaSequencial<>();
-        ListaSequencial<Float> listaPrecosBistek = new ListaSequencial<>();
+        // Lista dos produtos com o menor preço por mercado, efetivamente o carrinho.
+        ListaSequencial<Float> carrinhoGiassi = new ListaSequencial<>();
+        ListaSequencial<Float> carrinhoFort = new ListaSequencial<>();
+        ListaSequencial<Float> carrinhoBistek = new ListaSequencial<>();
 
-        // While feito para que só entre no menu, quando digitar entrar.
+        // Aguarda digitar "entrar"
         while (!dadosLista.equalsIgnoreCase("entrar")) {
-            System.out.println("Digite um dado válido.");
+            System.out.println("Digite um dado válido. ('entrar' para começar)");
             dadosLista = sc.nextLine();
         }
 
-        if (dadosLista.equalsIgnoreCase("entrar")) {
-            // Enquanto não colocar sair, será adicionado produtos para entrar na listaCompras
-            while (!dadosLista.equalsIgnoreCase("sair")) {
-                System.out.println("Digite um produto que você quer consultar o preço: ");
-                dadosLista = sc.nextLine();
+        // Loop de entrada de produtos
+        while (true) {
+            System.out.println("Digite um produto que você quer consultar o preço ou finalizar para acabar a compra: ");
+            dadosLista = sc.nextLine();
 
-                listaCompras.adiciona(dadosLista);
+            if (dadosLista.equalsIgnoreCase("finalizar")) {
+                break;
             }
 
-            // loop que busca e imprime os itens buscados no API.
-            for (int i = 0; i < listaCompras.comprimento() - 1; i++) {
-                String produtoNome = listaCompras.obtem(i);
+            System.out.println(dadosLista);
+            listaCompras.adiciona(dadosLista);
+        }
 
-                // Variáveis busca para buscar os nomes dos produtos digitados.
-                var buscaGiassiNome = dadosGiassi.busca(produtoNome);
-                var buscaFortNome = dadosFort.busca(produtoNome);
-                var buscaBistekNome = dadosBistek.busca(produtoNome);
+        // loop que busca e imprime os itens buscados no API.
+        for (int i = 0; i < listaCompras.comprimento(); i++) {
+            // Busca em cada mercado
+            Float precoGiassi = obtemMenorPreco(dadosGiassi, listaCompras.obtem(i));
+            Float precoFort = obtemMenorPreco(dadosFort, listaCompras.obtem(i));
+            Float precoBistek = obtemMenorPreco(dadosBistek, listaCompras.obtem(i));
 
-                // Váriaveis busca para buscar os IDs dos produtos.
-                var buscaGiassiId = dadosGiassi.obtem(produtoNome);
-                var buscaFortId = dadosFort.obtem(produtoNome);
-                var buscaBistekId = dadosBistek.obtem(produtoNome);
-
-                System.out.println("Preço dos produtos do Giassi:");
-                System.out.println();
-
-                buscaGiassiNome.stream()
-                        .forEach(prod ->
-                                System.out.println(prod.getNome() + " - R$: " + prod.getPreco()));
-
-                // Adiciona o preço de cada produto na lista respectiva do mercado.
-                buscaGiassiNome.stream()
-                                .forEach(prod ->
-                                        listaPrecosGiassi.adiciona(prod.getPreco()));
-
-                System.out.println();
-                System.out.println("Preço dos produtos do Fort:");
-                System.out.println();
-
-                buscaFortNome.stream()
-                        .forEach(prod ->
-                                System.out.println(prod.getNome() + " - R$: " + prod.getPreco()));
-
-                buscaFortNome.stream()
-                        .forEach(prod ->
-                                listaPrecosFort.adiciona(prod.getPreco()));
-
-                System.out.println();
-                System.out.println("Preço dos produtos do Bistek:");
-                System.out.println();
-
-                buscaBistekNome.stream()
-                        .forEach(prod ->
-                                System.out.println(prod.getNome() + " - R$: " + prod.getPreco()));
-
-                buscaBistekNome.stream()
-                        .forEach(prod ->
-                                listaPrecosBistek.adiciona(prod.getPreco()));
-
+            // Adiciona aos carrinhos
+            if (precoGiassi != null) {
+                carrinhoGiassi.adiciona(precoGiassi);
+                System.out.println("Giassi - " + listaCompras.obtem(i) + ": R$ " + precoGiassi);
             }
 
-            System.out.println();
-
-            for (int i = 0; i < listaPrecosGiassi.comprimento(); i++) {
-                System.out.println("Preço: R$ " + listaPrecosGiassi.obtem(i));
+            if (precoFort != null) {
+                carrinhoFort.adiciona(precoFort);
+                System.out.println("Fort - " + listaCompras.obtem(i) + ": R$ " + precoFort);
             }
 
-            System.out.println();
-
-            for (int i = 0; i < listaPrecosFort.comprimento(); i++) {
-                System.out.println("Preço: R$ " + listaPrecosFort.obtem(i));
+            if (precoBistek != null) {
+                carrinhoBistek.adiciona(precoBistek);
+                System.out.println("Bistek - " + listaCompras.obtem(i) + ": R$ " + precoBistek);
             }
+        }
 
-            System.out.println();
+        // Exibe carrinhos
+        System.out.println("\nCARRINHOS\n");
 
-            for (int i = 0; i < listaPrecosBistek.comprimento(); i++) {
-                System.out.println("Preço: R$ " + listaPrecosBistek.obtem(i));
+        Float totalGiassi = exibeCarrinho("Giassi", carrinhoGiassi);
+        Float totalFort = exibeCarrinho("Fort", carrinhoFort);
+        Float totalBistek = exibeCarrinho("Bistek", carrinhoBistek);
+
+        // Compara os carrinhos
+        comparaCarrinhos(totalGiassi, totalFort, totalBistek);
+    }
+
+    // Método para obter o menor preço de um produto em um mercado
+    static Float obtemMenorPreco(Supermercado mercado, String produtoBuscado) {
+        var resultado = mercado.busca(produtoBuscado);
+
+        Float menorPreco = null;
+
+        for (Produto prod : resultado) {
+            String nomeProduto = prod.getNome().toLowerCase();
+            String busca = produtoBuscado.toLowerCase();
+            Float preco = prod.getPreco();
+
+            if (nomeProduto.startsWith(busca) && preco > 0) {
+                if (menorPreco == null || preco < menorPreco) {
+                    menorPreco = preco;
+                }
             }
-            
+        }
+
+        return menorPreco;
+    }
+
+    // Método para exibir um carrinho
+    static Float exibeCarrinho(String nomeMercado, ListaSequencial<Float> carrinho) {
+        System.out.println("Carrinho do " + nomeMercado + ":");
+
+        Float total = 0.0f;
+
+        for (int i = 0; i < carrinho.comprimento(); i++) {
+            Float preco = carrinho.obtem(i);
+            System.out.println("  Produto " + (i + 1) + ": R$ " + preco);
+            total += preco;
+        }
+
+        System.out.println("  Total: R$ " + total);
+        System.out.println();
+
+        return total;
+    }
+
+    static void comparaCarrinhos(Float totalGiassi, Float totalFort, Float totalBistek) {
+        System.out.println("COMPARAÇÃO FINAL\n");
+
+        System.out.println("Total Giassi: R$ " + totalGiassi);
+        System.out.println("Total Fort: R$ " + totalFort);
+        System.out.println("Total Bistek: R$ " + totalBistek);
+
+        System.out.println();
+
+        // Verifica qual é o menor
+        if (totalGiassi < totalFort && totalGiassi < totalBistek) {
+            System.out.println("Giassi é o mais barato!");
+        } else if (totalFort < totalGiassi && totalFort < totalBistek) {
+            System.out.println("Fort é o mais barato!");
+        } else if (totalBistek < totalGiassi && totalBistek < totalFort) {
+            System.out.println("Bistek é o mais barato!");
+        } else {
+            System.out.println("Os preços são iguais!");
         }
     }
+
 }

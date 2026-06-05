@@ -365,4 +365,38 @@ public class ListaSequencial <T> {
             area[pos2] = val;
         }
     }
+
+    public T retornaMenor() {
+        if (len == 0) {
+            return null;
+        }
+
+        T valorMenor = area[0];
+
+        for (int i = 1; i < len; i++) {
+            if (area[i] != null) {
+                Comparable menor = (Comparable) valorMenor;
+                int cmp = menor.compareTo(area[i]);
+
+                if (cmp > 0) {
+                    valorMenor = area[i];
+                }
+            }
+        }
+
+        return valorMenor;
+    }
+
+    public ListaSequencial<T> compactar() {
+        ListaSequencial<T> novaLista = new ListaSequencial<>();
+
+        for (int i = 0; i < len; i++) {
+            if (area[i] != null) {
+                novaLista.adiciona(area[i]);
+            }
+        }
+
+        return novaLista;
+    }
+
 }
